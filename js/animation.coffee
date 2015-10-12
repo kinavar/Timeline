@@ -1,5 +1,6 @@
-s = Snap('.svg').attr({viewBox: '0 0 500 100'})
+s = Snap('.svg').attr({viewBox: '0 0 520 100'})
 canvasWidth = 500
+canvasHeight = 100
 height = 2
 dayStart = 8
 dayFinish = 20
@@ -10,6 +11,40 @@ getToday = ()->
   date.setHours(8)
   date.setMinutes(0)
 
+
+
+
+drawBigPoints = () ->
+  period = canvasWidth/dayTime
+  startPoint = 10
+  for i in [0..dayTime]
+    h=hour.clone().appendTo(s)
+    h.transform('t'+startPoint)
+    h.select('.hourText').node.innerHTML = '00'
+    addHover(h)
+    startPoint+=period
+
+
+
+
+
+bigPoint = s.circle(0,5,1).attr({fill: '#999'}).addClass 'hourPoint'
+hourText = s.text(0,3,'').attr({fontSize: '4px', fill: '#999', 'font-weight': '100'}).addClass 'hourText'
+markLine = s.line(0,5,0,5).attr({stroke: '#999','stroke-width': .5}).addClass 'markLine'
+hour = s.g(bigPoint,hourText,markLine)
+
+addHover = (e) ->
+  e.mouseover ()->
+    @.select('.hourPoint').animate {r:1.5}, 200
+    @.select('.markLine').animate {y2: canvasHeight}, 200
+  e.mouseout () ->
+    @.select('.hourPoint').animate {r:1}, 200
+    @.select('.markLine').animate {y2: 5}, 200
+hour.toDefs()
+
+
+
+drawBigPoints()
 
 lineText = s.text(1,15, 'Room1').attr({fontSize: '8px', fill: '#26A69A', 'font-weight': 'bold', opacity: 0}).addClass('text')
 line = s.rect(0,20,0,height).attr({fill: '#80CBC4'}).addClass('line')
@@ -35,8 +70,6 @@ getUseParams = (t1,t2) ->
   useTime = (t2-t1)/(hoursToMs(dayTime))*100
   startPoint = canvasWidth/100*startLength
   useWidth = canvasWidth/100*useTime
-
-
   return {
     x :startPoint,
     width : useWidth
@@ -76,7 +109,7 @@ class TimeLine
     @addLine()
     @addRoomName()
     @addUses()
-    @timeLine.transform('t0,'+offset.get())
+    @timeLine.transform('t10,'+offset.get())
     @setAnimation()
 
 
