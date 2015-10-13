@@ -138,9 +138,9 @@ class TimeLine
 
 drawBigPoints()
 
-room = new TimeLine({roomName: 'Red Room',times:[{startTime:now,finishTime:now1},{startTime:now2,finishTime:now3}]})
-room2 = new TimeLine({roomName: 'Blue Room',times:[{startTime:now,finishTime:now1},{startTime:now2,finishTime:now3}]})
-room3 = new TimeLine({roomName: 'Grey Room',times:[{startTime:now,finishTime:now1}]})
+new TimeLine({roomName: 'Red Room',times:[{startTime:now,finishTime:now1},{startTime:now2,finishTime:now3}]})
+new TimeLine({roomName: 'Blue Room',times:[{startTime:now,finishTime:now1},{startTime:now2,finishTime:now3}]})
+new TimeLine({roomName: 'Grey Room',times:[{startTime:now,finishTime:now1}]})
 #room4 = new TimeLine({roomName: 'Grey hjk Room',times:[]})
 #room5 = new TimeLine({roomName: 'Grey hjk Room',times:[]})
 
