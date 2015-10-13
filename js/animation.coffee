@@ -1,16 +1,26 @@
-s = Snap('.svg').attr({viewBox: '0 0 520 100'})
+
 canvasWidth = 500
-canvasHeight = 100
+canvasHeight = 0
 height = 2
 dayStart = 8
 dayFinish = 20
 dayTime = dayFinish-dayStart
+
+s = Snap('.svg').attr({viewBox: "0 0 #{canvasWidth+20} #{canvasHeight}"})
+
 
 getToday = ()->
   date = new Date()
   date.setHours(8)
   date.setMinutes(0)
 
+alternateDate = (hours) ->
+  if hours > 12
+    return hours-12+':00pm'
+  if hours is 12
+    return hours+':00pm'
+  else
+    return hours+':00am'
 
 
 
@@ -20,7 +30,9 @@ drawBigPoints = () ->
   for i in [0..dayTime]
     h=hour.clone().appendTo(s)
     h.transform('t'+startPoint)
-    h.select('.hourText').node.innerHTML = '00'
+    m=minutes.clone().appendTo(s)
+    m.transform('t'+((period/2)+startPoint))
+    h.select('.hourText').node.innerHTML = alternateDate((dayStart+i))
     addHover(h)
     startPoint+=period
 
@@ -28,23 +40,30 @@ drawBigPoints = () ->
 
 
 
-bigPoint = s.circle(0,5,1).attr({fill: '#999'}).addClass 'hourPoint'
-hourText = s.text(0,3,'').attr({fontSize: '4px', fill: '#999', 'font-weight': '100'}).addClass 'hourText'
-markLine = s.line(0,5,0,5).attr({stroke: '#999','stroke-width': .5}).addClass 'markLine'
+
+
+bigPoint = s.circle(0,5,1).attr({fill: '#999'}).addClass 'point'
+hourText = s.text(-4,3,'').attr({fontSize: '4px', fill: '#999', 'font-weight': '100'}).addClass 'hourText'
+markLine = s.line(0,5,0,canvasHeight).attr({stroke: '#999','stroke-width': .5, 'stroke-dasharray': '2,2', opacity: .15}).addClass 'markLine'
 hour = s.g(bigPoint,hourText,markLine)
+
+smallPoint = s.circle(0,5,.5).attr({fill: '#999'}).addClass 'point'
+smallMarkLine = s.line(0,5,0,canvasHeight).attr({stroke: '#999','stroke-width': .5, 'stroke-dasharray': '1,1', opacity: .15}).addClass 'markLine'
+minutes = s.g(smallPoint,smallMarkLine)
+
 
 addHover = (e) ->
   e.mouseover ()->
-    @.select('.hourPoint').animate {r:1.5}, 200
-    @.select('.markLine').animate {y2: canvasHeight}, 200
+    @.select('.point').animate {r:1.5}, 200
+    @.select('.markLine').animate {'stroke-dasharray': '100%', opacity: .8}, 200
   e.mouseout () ->
-    @.select('.hourPoint').animate {r:1}, 200
-    @.select('.markLine').animate {y2: 5}, 200
+    @.select('.point').animate {r:1}, 200
+    @.select('.markLine').animate {'stroke-dasharray': '2,2', opacity: .15}, 200
 hour.toDefs()
+minutes.toDefs()
 
 
 
-drawBigPoints()
 
 lineText = s.text(1,15, 'Room1').attr({fontSize: '8px', fill: '#26A69A', 'font-weight': 'bold', opacity: 0}).addClass('text')
 line = s.rect(0,20,0,height).attr({fill: '#80CBC4'}).addClass('line')
@@ -91,21 +110,24 @@ class TimeLine
 
   addLine: () ->
     @timeLine = timeLine.clone().appendTo(s)
-
   addRoomName: () ->
     @timeLine.select('.text').node.innerHTML = @roomName
   addUses: ()->
     t=@timeLine
     @times.forEach (e,i,arr) ->
-      t.append(ts.clone().attr(getUseParams(arr[i],arr[i+1])))
-      arr.splice(0,1)
+      t.append(ts.clone().attr(getUseParams(e.startTime,e.finishTime)))
       return
   setAnimation: ()->
     t=@timeLine
     t.select('.line').animate {width: canvasWidth}, 1000, ->
       t.select('.text').animate({opacity:1}, 500)
       t.selectAll('.inUse').animate {opacity:1}, 500
+  canvasAdjust: () ->
+    canvasHeight = canvasHeight+20
+    s.attr({viewBox: "0 0 #{canvasWidth+20} #{canvasHeight+10}"})
+    s.selectAll('.markLine').attr({y2:canvasHeight})
   init: () ->
+    @canvasAdjust()
     @addLine()
     @addRoomName()
     @addUses()
@@ -114,13 +136,12 @@ class TimeLine
 
 
 
+drawBigPoints()
 
-
-
-
-room = new TimeLine({roomName: 'Red Room',times:[now,now1,now2,now3]})
-room2 = new TimeLine({roomName: 'Blue Room',times:[now,now1,now2,now3]})
-room3 = new TimeLine({roomName: 'Grey Room',times:[now,now1,now2,now3]})
-room4 = new TimeLine({roomName: 'Grey hjk Room',times:[]})
+room = new TimeLine({roomName: 'Red Room',times:[{startTime:now,finishTime:now1},{startTime:now2,finishTime:now3}]})
+room2 = new TimeLine({roomName: 'Blue Room',times:[{startTime:now,finishTime:now1},{startTime:now2,finishTime:now3}]})
+room3 = new TimeLine({roomName: 'Grey Room',times:[{startTime:now,finishTime:now1}]})
+#room4 = new TimeLine({roomName: 'Grey hjk Room',times:[]})
+#room5 = new TimeLine({roomName: 'Grey hjk Room',times:[]})
 
 
